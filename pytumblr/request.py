@@ -2,20 +2,38 @@ import urllib
 import urllib2
 import time
 import json
+from httplib2 import socks
+import os
 
 from urlparse import parse_qsl
+from urlparse import urlparse
 import oauth2 as oauth
 from httplib2 import RedirectLimit
+from httplib2 import ProxyInfo
+import httplib2
+
 
 class TumblrRequest(object):
     """
     A simple request object that lets us query the Tumblr API
     """
 
-    def __init__(self, consumer_key, consumer_secret="", oauth_token="", oauth_secret="", host="http://api.tumblr.com"):
+    def __init__(self, consumer_key, consumer_secret="", oauth_token="", oauth_secret="", host="https://api.tumblr.com", proxy_info=None):
         self.host = host
         self.consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
         self.token = oauth.Token(key=oauth_token, secret=oauth_secret)
+
+        if proxy_info:
+            self.proxy_info = proxy_info
+        else:
+            proxy_url = os.environ.get('HTTPS_PROXY',None)
+            if proxy_url:
+                uri = urlparse(proxy_url)
+                self.proxy_info = ProxyInfo(socks.PROXY_TYPE_HTTP,uri.hostname,uri.port,proxy_rdns=True)
+            else:
+                self.proxy_info = None
+
+
 
     def get(self, url, params):
         """
@@ -30,8 +48,9 @@ class TumblrRequest(object):
         if params:
             url = url + "?" + urllib.urlencode(params)
 
-        client = oauth.Client(self.consumer, self.token)
-        try:
+        client = oauth.Client(self.consumer, self.token,proxy_info=self.proxy_info)
+        client.disable_ssl_certificate_validation = True
+	try:
             client.follow_redirects = False
             resp, content = client.request(url, method="GET", redirections=False)
         except RedirectLimit, e:
@@ -55,7 +74,8 @@ class TumblrRequest(object):
             if files:
                 return self.post_multipart(url, params, files)
             else:
-                client = oauth.Client(self.consumer, self.token)
+                client = oauth.Client(self.consumer, self.token, proxy_info=self.proxy_info)
+                client.disable_ssl_certificate_validation = True
                 resp, content = client.request(url, method="POST", body=urllib.urlencode(params))
                 return self.json_parse(content)
         except urllib2.HTTPError, e:
@@ -103,6 +123,9 @@ class TumblrRequest(object):
 
         #Do a bytearray of the body and everything seems ok
         r = urllib2.Request(url, bytearray(body), headers)
+        proxy = urllib2.ProxyHandler({'http':settings.PROXY_URL,'https':settings.PROXY_URL})
+        opener = urllib2.build_opener(proxy)
+        urllib2.install_opener(opener)
         content = urllib2.urlopen(r).read()
         return self.json_parse(content)
 
