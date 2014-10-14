@@ -18,13 +18,13 @@ class TumblrRequest(object):
     A simple request object that lets us query the Tumblr API
     """
 
-    def __init__(self, consumer_key, consumer_secret="", oauth_token="", oauth_secret="", host="https://api.tumblr.com", proxy_info=None):
+    def __init__(self, consumer_key, consumer_secret="", oauth_token="", oauth_secret="", host="https://api.tumblr.com", proxy_url=None):
         self.host = host
         self.consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
         self.token = oauth.Token(key=oauth_token, secret=oauth_secret)
-
-        if proxy_info:
-            self.proxy_info = proxy_info
+        self.proxy_url = proxy_url
+        if proxy_url:
+            self.proxy_info = httplib2.proxy_info_from_url(proxy_url,'http')
         else:
             proxy_url = os.environ.get('HTTPS_PROXY',None)
             if proxy_url:
@@ -123,9 +123,10 @@ class TumblrRequest(object):
 
         #Do a bytearray of the body and everything seems ok
         r = urllib2.Request(url, bytearray(body), headers)
-        proxy = urllib2.ProxyHandler({'http':settings.PROXY_URL,'https':settings.PROXY_URL})
-        opener = urllib2.build_opener(proxy)
-        urllib2.install_opener(opener)
+        if self.proxy_url:
+            proxy = urllib2.ProxyHandler({'http':self.proxy_url,'https':self.proxy_url})
+            opener = urllib2.build_opener(proxy)
+            urllib2.install_opener(opener)
         content = urllib2.urlopen(r).read()
         return self.json_parse(content)
 

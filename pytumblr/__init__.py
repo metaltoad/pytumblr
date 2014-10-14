@@ -7,7 +7,7 @@ class TumblrRestClient(object):
     A Python Client for the Tumblr API
     """
 
-    def __init__(self, consumer_key, consumer_secret="", oauth_token="", oauth_secret="", host="https://api.tumblr.com",proxy_info=None):
+    def __init__(self, consumer_key, consumer_secret="", oauth_token="", oauth_secret="", host="https://api.tumblr.com",proxy_url=None):
         """
         Initializes the TumblrRestClient object, creating the TumblrRequest
         object which deals with all request formatting.
@@ -25,7 +25,7 @@ class TumblrRestClient(object):
 
         :returns: None
         """
-        self.request = TumblrRequest(consumer_key, consumer_secret, oauth_token, oauth_secret, host,proxy_info=proxy_info)
+        self.request = TumblrRequest(consumer_key, consumer_secret, oauth_token, oauth_secret, host,proxy_url=proxy_url)
 
     def info(self):
         """
