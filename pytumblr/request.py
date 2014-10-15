@@ -24,8 +24,13 @@ class TumblrRequest(object):
         self.token = oauth.Token(key=oauth_token, secret=oauth_secret)
         self.proxy_url = proxy_url
         if proxy_url:
-            self.proxy_info = httplib2.proxy_info_from_url(proxy_url,'http')
+            print("Generating Proxy From proxy_url")
+            self.proxy_info = httplib2.proxy_info_from_url("https://"+proxy_url,'http')
+            self.proxy_info.proxy_rdns=True
+            #uri = urlparse(proxy_url)
+            #self.proxy_info = ProxyInfo(socks.PROXY_TYPE_HTTP,uri.hostname,uri.port,proxy_rdns=True)
         else:
+            print("Generating proxy from ENV")
             proxy_url = os.environ.get('HTTPS_PROXY',None)
             if proxy_url:
                 uri = urlparse(proxy_url)
@@ -122,7 +127,7 @@ class TumblrRequest(object):
         headers = {'Content-Type': content_type, 'Content-Length': str(len(body))}
 
         #Do a bytearray of the body and everything seems ok
-        r = urllib2.Request(url, bytearray(body), headers)
+        r = urllib2.Request(url, body, headers)
         if self.proxy_url:
             proxy = urllib2.ProxyHandler({'http':self.proxy_url,'https':self.proxy_url})
             opener = urllib2.build_opener(proxy)
