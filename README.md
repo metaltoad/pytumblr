@@ -151,7 +151,7 @@ client.create_audio('codingjester', caption="Mega rock out.", external_url="http
 
 ##### Creating a video post
 Creating a video post allows for all default options and has three other options. Like the other post types,
-it has some restrictions. You cannoy use the embed and data parameters at the same time.
+it has some restrictions. You cannot use the embed and data parameters at the same time.
 * **caption**     - a string, the caption for your post
 * **embed**       - a string, the HTML embed code for the video
 * **data**        - a string, the path of the file you want to upload
@@ -176,7 +176,7 @@ client.edit_post(blogName, title="OK", data="/Users/johnb/mega/awesome.jpg"); # 
 Reblogging a post just requires knowing the post id and the reblog key, which is supplied in the JSON of any post object.
 
 ```python
-client.reblog("codingjester", 125356, "reblog_key")
+client.reblog("codingjester", id=125356, reblog_key="reblog_key")
 ```
 
 #### Deleting a post

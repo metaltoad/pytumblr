@@ -21,7 +21,7 @@ class TumblrRestClient(object):
         :param oauth_secret: a string, the user specific secret, received
                              from the /access_token endpoint
         :param host: the host that are you trying to send information to,
-                     defaults to http://api.tumblr.com
+                     defaults to https://api.tumblr.com
 
         :returns: None
         """
@@ -51,14 +51,16 @@ class TumblrRestClient(object):
         """
         Gets the current given user's likes
         :param limit: an int, the number of likes you want returned
-        :param offset: an int, the like you want to start at, for pagination.
+        (DEPRECATED) :param offset: an int, the like you want to start at, for pagination.
+        :param before: an int, the timestamp for likes you want before.
+        :param after: an int, the timestamp for likes you want after.
 
             # Start at the 20th like and get 20 more likes.
             client.likes({'offset': 20, 'limit': 20})
 
         :returns: A dict created from the JSON response
         """
-        return self.send_api_request("get", "/v2/user/likes", kwargs, ["limit", "offset"])
+        return self.send_api_request("get", "/v2/user/likes", kwargs, ["limit", "offset", "before", "after"])
 
     def following(self, **kwargs):
         """
@@ -160,7 +162,9 @@ class TumblrRestClient(object):
         """
         Gets the current given user's likes
         :param limit: an int, the number of likes you want returned
-        :param offset: an int, the like you want to start at, for pagination.
+        (DEPRECATED) :param offset: an int, the like you want to start at, for pagination.
+        :param before: an int, the timestamp for likes you want before.
+        :param after: an int, the timestamp for likes you want after.
 
             # Start at the 20th like and get 20 more likes.
             client.blog_likes({'offset': 20, 'limit': 20})
@@ -168,7 +172,7 @@ class TumblrRestClient(object):
         :returns: A dict created from the JSON response
         """
         url = "/v2/blog/{0}/likes".format(blogname)
-        return self.send_api_request("get", url, kwargs, ['limit', 'offset'], True)
+        return self.send_api_request("get", url, kwargs, ['limit', 'offset', 'before', 'after'], True)
     
     @validate_blogname
     def queue(self, blogname, **kwargs):
@@ -354,7 +358,7 @@ class TumblrRestClient(object):
         :param format: a string, sets the format type of the post. html or markdown
         :param slug: a string, a short text summary to the end of the post url
         :param title: a string, the title of the conversation
-        :param converstaion: a string, the conversation you are posting
+        :param conversation: a string, the conversation you are posting
 
         :returns: a dict created from the JSON response
         """
